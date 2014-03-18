@@ -1086,7 +1086,7 @@ void parent_signal_treatment(int param) {
 }
 
 /**
- * Daemonize process, this process  create teh daemon
+ * Daemonize process, this process  create the daemon
  */
 int daemonize(int _debug)
 {
@@ -1277,14 +1277,20 @@ int initIRZ52IT()
  */
 int initGeneric()
 {
-	char mux_command[20] = "AT+CMUX=0\r\n";
-    unsigned char close_mux[2] = { C_CLD | CR, 1 };
+	char command[20];
+	unsigned char close_mux[2] = { C_CLD | CR, 1 };
 
-    int baud = indexOfBaud(baudrate);
-    if (baud != 0) {
-        // Setup the speed explicitly, if given
-        sprintf(mux_command, "AT+CMUX=0,0,%d\r\n", baud);
-    }
+	int baud = indexOfBaud(baudrate);
+	if (baud != 0)
+	{
+		// Setup the speed explicitly, if given
+		sprintf(command, "AT+IPR=%d\r\n", baud);
+		if (!at_command(serial_fd,command, 10000))
+		{
+			if(_debug)
+				syslog(LOG_DEBUG, "ERROR AT+IPR %d\r\n", __LINE__);	
+		}
+	}
 	
 	/**
 	 * Modem Init for Siemens Generic like Sony
@@ -1295,24 +1301,25 @@ int initGeneric()
 		if(_debug)
 			syslog(LOG_DEBUG, "ERROR AT %d\r\n", __LINE__);
 
-        syslog(LOG_INFO, "Modem does not respond to AT commands, trying close MUX mode");
+		syslog(LOG_INFO, "Modem does not respond to AT commands, trying close MUX mode");
 		write_frame(0, close_mux, 2, UIH);
-        at_command(serial_fd,"AT\r\n", 10000);
+		at_command(serial_fd,"AT\r\n", 10000);
 	}
-        if (pin_code > 0 && pin_code < 10000) 
-        {
-            // Some modems, such as webbox, will sometimes hang if SIM code
-            // is given in virtual channel
-            char pin_command[20];
-            sprintf(pin_command, "AT+CPIN=%d\r\n", pin_code);
-            if (!at_command(serial_fd,pin_command, 20000))
-            {
-		if(_debug)
-			syslog(LOG_DEBUG, "ERROR AT+CPIN %d\r\n", __LINE__);
-            }
-        }
+  
+  if (pin_code > 0 && pin_code < 10000) 
+	{
+		// Some modems, such as webbox, will sometimes hang if SIM code
+		// is given in virtual channel
+		char pin_command[20];
+		sprintf(pin_command, "AT+CPIN=%d\r\n", pin_code);
+		if (!at_command(serial_fd,pin_command, 20000))
+		{
+			if(_debug)
+				syslog(LOG_DEBUG, "ERROR AT+CPIN %d\r\n", __LINE__);
+		}
+	}
 
-	if (!at_command(serial_fd, mux_command, 10000))
+	if (!at_command(serial_fd, "AT+CMUX=0\r\n", 10000))
 	{
 		syslog(LOG_ERR, "MUX mode doesn't function.\n");
 		return -1;
