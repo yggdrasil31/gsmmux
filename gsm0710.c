@@ -1339,7 +1339,7 @@ int initAGS2E()
   if (baud != 0)
   {
     // Setup the speed explicitly, if given
-    sprintf(command, "AT+IPR=%d\r\n", baud);
+    sprintf(command, "AT+IPR=%d\r\n", baudrate);
     if (!at_command(serial_fd,command, 10000))
     {
       if(_debug)
