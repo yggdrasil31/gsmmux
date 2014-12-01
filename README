@@ -73,4 +73,4 @@ INSTALLATION
 USAGE
   
   for AGS2-E the command line is :
-  /usr/bin/gsmMuxd -p /dev/ttymxc2 -m ags2e -b 115200 -w -r -s /dev/mux /dev/ptmx /dev/ptmx /dev/ptmx
+  /usr/bin/gsmMuxd -p /dev/ttymxc2 -m ags2e -b 115200 -w -r -s /dev/mux /dev/ptmx /dev/ptmx /dev/ptmx /dev/ptmx
