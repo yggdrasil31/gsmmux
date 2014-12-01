@@ -1348,7 +1348,7 @@ int initAGS2E()
   }
   
   // Set the flow control to RTS/CTS  
-  if (!at_command(serial_fd,"AT\Q3\r\n", 10000))
+  if (!at_command(serial_fd,"AT\\Q3\r\n", 10000))
   {
     if(_debug)
       syslog(LOG_DEBUG, "ERROR AT\\Q3\r\n", __LINE__); 
