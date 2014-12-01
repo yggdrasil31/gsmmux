@@ -609,7 +609,7 @@ void setAdvancedOptions(int fd, speed_t baud) {
     // Enable the receiver and set local mode and 8N1
     options.c_cflag = (CLOCAL | CREAD | CS8 | HUPCL);
     // enable hardware flow control (CNEW_RTCCTS)
-    // options.c_cflag |= CRTSCTS;
+    options.c_cflag |= CRTSCTS;
     // Set speed
     options.c_cflag |= baud;
     
@@ -666,11 +666,17 @@ int open_serialport(char *dev)
     int index = indexOfBaud(baudrate);
     if(_debug)
       syslog(LOG_DEBUG, "serial opened\n" );
-    if (index > 0) {
+    if (index > 0)
+    {
       // Switch the baud rate to zero and back up to wake up 
-      // the modem
+      // the modem      
       setAdvancedOptions(fd, baud_bits[index]);
-    } else {
+      syslog(LOG_DEBUG, "calling setAdvancedOptions\n" );
+    }
+    else
+    {
+      syslog(LOG_DEBUG, "configuring the old way\n" );
+      
       struct termios options;
       // The old way. Let's not change baud settings
       fcntl(fd, F_SETFL, 0);
@@ -692,7 +698,7 @@ int open_serialport(char *dev)
       options.c_cflag |= CS8;
       
       // enable hardware flow control (CNEW_RTCCTS)
-      // options.c_cflag |= CRTSCTS;
+      options.c_cflag |= CRTSCTS;
       
       // set raw input
       options.c_lflag &= ~(ICANON | ECHO | ECHOE | ISIG);
@@ -1348,11 +1354,13 @@ int initAGS2E()
   }
   
   // Set the flow control to RTS/CTS  
+  /*
   if (!at_command(serial_fd,"AT\\Q3\r\n", 10000))
   {
     if(_debug)
       syslog(LOG_DEBUG, "ERROR AT\\Q3\r\n", __LINE__); 
   }
+  */
   
   /**
    * Modem Init for Siemens Generic like Sony
